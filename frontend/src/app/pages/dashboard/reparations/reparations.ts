@@ -1,66 +1,104 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Reparation {
-  id: string;
-  voiture: string;
-  plaque: string;
-  garage: string;
-  date: string;
-  status: 'EN_COURS' | 'TERMINEE' | 'DEVIS';
-  progress: number;
-  montant?: string;
-}
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-reparations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './reparations.html'
 })
-export class Reparations {
-  activeFilter: 'TOUT' | 'EN_COURS' | 'TERMINEE' | 'DEVIS' = 'TOUT';
-  
-  mockReparations: Reparation[] = [
-    {
-      id: 'REP-2023-084',
-      voiture: 'Peugeot 3008 SUV',
-      plaque: 'AB-123-CD',
-      garage: 'Garage Mermoz Auto',
-      date: '17 Juil 2026',
-      status: 'EN_COURS',
-      progress: 65
-    },
-    {
-      id: 'REP-2023-042',
-      voiture: 'Renault Clio V',
-      plaque: 'DK-4567-G',
-      garage: 'Sénégal Mécanique',
-      date: '02 Juin 2026',
-      status: 'TERMINEE',
-      progress: 100,
-      montant: '85 000 FCFA'
-    },
-    {
-      id: 'DEV-2023-112',
-      voiture: 'Toyota Corolla',
-      plaque: 'TH-789-KL',
-      garage: 'Auto Expert Dakar',
-      date: '16 Juil 2026',
-      status: 'DEVIS',
-      progress: 0,
-      montant: '120 000 FCFA'
-    }
-  ];
+export class Reparations implements OnInit {
+  demandes: any[] = [];
+  loading = true;
 
-  get filteredReparations() {
-    if (this.activeFilter === 'TOUT') {
-      return this.mockReparations;
-    }
-    return this.mockReparations.filter(r => r.status === this.activeFilter);
+  showAvisModal = false;
+  selectedMecanicienId: number | null = null;
+  selectedDemandeId: number | null = null;
+  avis = { note: 5, commentaire: '' };
+  avisSuccess = '';
+
+  constructor(private apiService: ApiService, private router: Router) {}
+
+  ngOnInit() {
+    this.loadDemandes();
   }
 
-  setFilter(filter: 'TOUT' | 'EN_COURS' | 'TERMINEE' | 'DEVIS') {
-    this.activeFilter = filter;
+  loadDemandes() {
+    this.loading = true;
+    this.apiService.get('/client/demandes').subscribe({
+      next: (data) => {
+        this.demandes = data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        this.loading = false;
+      },
+      error: () => this.loading = false
+    });
+  }
+
+  validerDevis(devisId: number) {
+    this.apiService.put(`/client/devis/${devisId}/valider`, {}).subscribe({
+      next: () => {
+        this.loadDemandes();
+      }
+    });
+  }
+
+  allerAuPaiement(demandeId: number) {
+    this.router.navigate(['/dashboard/client/paiements'], { queryParams: { demandeId } });
+  }
+
+  ouvrirAvisModal(demande: any) {
+    this.selectedDemandeId = demande.id;
+    this.selectedMecanicienId = demande.mecanicienId;
+    this.avis = { note: 5, commentaire: '' };
+    this.showAvisModal = true;
+    this.avisSuccess = '';
+  }
+
+  soumettreAvis() {
+    if (!this.selectedMecanicienId) return;
+
+    this.apiService.post('/client/avis', {
+      mecanicienId: this.selectedMecanicienId,
+      note: this.avis.note,
+      commentaire: this.avis.commentaire
+    }).subscribe({
+      next: () => {
+        this.avisSuccess = 'Merci pour votre avis !';
+        setTimeout(() => {
+          this.showAvisModal = false;
+        }, 1500);
+      }
+    });
+  }
+
+  getStatutBadgeClass(statut: string) {
+    switch (statut) {
+      case 'EN_ATTENTE': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'ACCEPTEE': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'DEVIS_ENVOYE': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'DEVIS_VALIDE': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 'PAYEE': return 'bg-green-100 text-green-800 border-green-200';
+      case 'EN_COURS': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'TERMINEE': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'ANNULEE': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getStatutLabel(statut: string) {
+    const labels: { [key: string]: string } = {
+      'EN_ATTENTE': 'En attente',
+      'ACCEPTEE': 'Acceptée',
+      'DEVIS_ENVOYE': 'Devis reçu',
+      'DEVIS_VALIDE': 'Devis validé',
+      'PAYEE': 'Payée',
+      'EN_COURS': 'En cours',
+      'TERMINEE': 'Terminée',
+      'ANNULEE': 'Annulée'
+    };
+    return labels[statut] || statut;
   }
 }

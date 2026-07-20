@@ -25,6 +25,17 @@ export const getVehicules = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getGaragesList = async (req: AuthRequest, res: Response) => {
+  try {
+    const garages = await prisma.garage.findMany({
+      where: { estValide: true },
+    });
+    res.json(garages);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur récupération des garages' });
+  }
+};
+
 // --- Demandes de Réparation ---
 export const createDemande = async (req: AuthRequest, res: Response) => {
   try {
@@ -47,7 +58,7 @@ export const getDemandes = async (req: AuthRequest, res: Response) => {
   try {
     const demandes = await prisma.demandeReparation.findMany({
       where: { clientId: req.user!.id },
-      include: { vehicule: true, devis: true, facture: true, garage: true },
+      include: { vehicule: true, devis: true, facture: true, garage: true, mecanicien: true },
     });
     res.json(demandes);
   } catch (error) {
