@@ -63,7 +63,7 @@ export const getDemandes = async (req: AuthRequest, res: Response) => {
         devis: true,
         facture: true,
         garage: { select: { id: true, nom: true, adresse: true, telephone: true } },
-        mecanicien: { select: { id: true, nom: true, prenom: true, photoProfil: true, pointsReputation: true } }
+        mecanicien: { select: { id: true, nom: true, prenom: true, photoProfil: true, pointsReputation: true, telephone: true } }
       },
     });
     res.json(demandes);
