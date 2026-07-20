@@ -58,7 +58,13 @@ export const getDemandes = async (req: AuthRequest, res: Response) => {
   try {
     const demandes = await prisma.demandeReparation.findMany({
       where: { clientId: req.user!.id },
-      include: { vehicule: true, devis: true, facture: true, garage: true, mecanicien: true },
+      include: {
+        vehicule: true,
+        devis: true,
+        facture: true,
+        garage: { select: { id: true, nom: true, adresse: true, telephone: true } },
+        mecanicien: { select: { id: true, nom: true, prenom: true, photoProfil: true, pointsReputation: true } }
+      },
     });
     res.json(demandes);
   } catch (error) {
