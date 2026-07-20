@@ -55,15 +55,16 @@
 
           <div class="bg-blue-50/50 rounded-xl p-5 border border-blue-100 flex flex-col justify-center items-center text-center">
             
-            <div *ngIf="demande.statut === 'DEVIS_ENVOYE' && demande.devis && demande.devis.length > 0" class="w-full">
+            <div *ngIf="demande.statut === 'DEVIS_ENVOYE' && demande.devis" class="w-full">
               <div class="mb-4">
                 <p class="text-sm text-gray-600 mb-1">Devis proposé par le mécanicien</p>
-                <p class="text-3xl font-bold text-gray-900">{{ demande.devis[0].montantTotal }} FCFA</p>
-                <p class="text-xs text-gray-500 mt-2">Détails : {{ demande.devis[0].detailPieces }}</p>
+                <p class="text-3xl font-bold text-gray-900">{{ demande.devis.montantTotal | number }} FCFA</p>
+                <p class="text-xs text-gray-500 mt-2">Détails : {{ demande.devis.detailPieces || 'Non précisé' }}</p>
               </div>
-              <button (click)="validerDevis(demande.devis[0].id)" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors shadow-sm">
-                Valider le devis
+              <button (click)="validerDevis(demande.devis.id)" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors shadow-sm">
+                ✅ Valider le devis
               </button>
+              <p class="text-xs text-gray-400 mt-2 text-center">En validant, vous acceptez le montant proposé.</p>
             </div>
 
             <div *ngIf="demande.statut === 'DEVIS_VALIDE'" class="w-full">
