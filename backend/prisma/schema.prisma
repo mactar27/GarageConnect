@@ -40,6 +40,7 @@ model Utilisateur {
   role             Role
   photoProfil      String?
   pointsReputation Int      @default(0) // Seulement pour Mecanicien
+  estDisponible    Boolean  @default(true) // Pour la disponibilité du mécanicien
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

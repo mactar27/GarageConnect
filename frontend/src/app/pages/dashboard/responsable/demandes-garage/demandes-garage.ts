@@ -51,7 +51,9 @@ import { ApiService } from '../../../../services/api.service';
           <select (change)="onAssignerChange(d.id, $event)"
             class="px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm font-medium">
             <option value="">-- Assigner un mécanicien --</option>
-            <option *ngFor="let m of mecaniciens" [value]="m.id">{{ m.prenom }} {{ m.nom }}</option>
+            <option *ngFor="let m of mecaniciens" [value]="m.id" [disabled]="!m.estDisponible">
+              {{ m.prenom }} {{ m.nom }} {{ m.estDisponible ? '(Disponible)' : '(Occupé)' }}
+            </option>
           </select>
         </div>
       </div>

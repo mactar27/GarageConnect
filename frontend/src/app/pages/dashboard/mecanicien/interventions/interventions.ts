@@ -25,10 +25,40 @@ export class Interventions implements OnInit {
   rapport = { contenu: '' };
   rapportSuccess = '';
 
+  // Profil Mécanicien
+  estDisponible: boolean = true;
+  profilLoading = true;
+
   constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
+    this.loadProfil();
     this.loadDemandes();
+  }
+
+  loadProfil() {
+    this.profilLoading = true;
+    this.apiService.get('/mecanicien/profil').subscribe({
+      next: (data: any) => {
+        this.estDisponible = data.estDisponible;
+        this.profilLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.profilLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  toggleDisponibilite() {
+    const nouveauStatut = !this.estDisponible;
+    this.apiService.put('/mecanicien/disponibilite', { estDisponible: nouveauStatut }).subscribe({
+      next: (res: any) => {
+        this.estDisponible = res.mecanicien.estDisponible;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadDemandes() {

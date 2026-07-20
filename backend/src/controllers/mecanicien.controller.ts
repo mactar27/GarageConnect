@@ -59,3 +59,29 @@ export const soumettreRapport = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Erreur création du rapport' });
   }
 };
+
+export const getMonProfil = async (req: AuthRequest, res: Response) => {
+  try {
+    const mecanicien = await prisma.utilisateur.findUnique({
+      where: { id: req.user!.id },
+      select: { id: true, nom: true, prenom: true, email: true, estDisponible: true }
+    });
+    res.json(mecanicien);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur récupération du profil' });
+  }
+};
+
+export const toggleDisponibilite = async (req: AuthRequest, res: Response) => {
+  try {
+    const { estDisponible } = req.body;
+    const mecanicien = await prisma.utilisateur.update({
+      where: { id: req.user!.id },
+      data: { estDisponible },
+      select: { id: true, estDisponible: true }
+    });
+    res.json({ message: 'Disponibilité mise à jour', mecanicien });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur mise à jour disponibilité' });
+  }
+};

@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { getDemandesAssignees, etablirDevis, updateStatutDemande, soumettreRapport } from '../controllers/mecanicien.controller';
+import { getDemandesAssignees, etablirDevis, updateStatutDemande, soumettreRapport, getMonProfil, toggleDisponibilite } from '../controllers/mecanicien.controller';
 import { authenticate, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
 
 router.use(authenticate);
 router.use(authorizeRoles('MECANICIEN'));
+
+router.get('/profil', getMonProfil);
+router.put('/disponibilite', toggleDisponibilite);
 
 router.get('/demandes', getDemandesAssignees);
 router.put('/demandes/:id/statut', updateStatutDemande);
