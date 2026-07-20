@@ -11,6 +11,7 @@ import { Garages } from './pages/dashboard/admin/garages/garages';
 import { Stats } from './pages/dashboard/admin/stats/stats';
 import { MonGarage } from './pages/dashboard/responsable/mon-garage/mon-garage';
 import { Mecaniciens } from './pages/dashboard/responsable/mecaniciens/mecaniciens';
+import { DemandesGarage } from './pages/dashboard/responsable/demandes-garage/demandes-garage';
 import { Interventions } from './pages/dashboard/mecanicien/interventions/interventions';
 import { RoleGuard } from './guards/role.guard';
 
@@ -36,6 +37,7 @@ export const routes: Routes = [
       // Responsable
       { path: 'responsable/mon-garage', component: MonGarage, canActivate: [RoleGuard], data: { expectedRoles: ['RESPONSABLE_GARAGE'] } },
       { path: 'responsable/mecaniciens', component: Mecaniciens, canActivate: [RoleGuard], data: { expectedRoles: ['RESPONSABLE_GARAGE'] } },
+      { path: 'responsable/demandes', component: DemandesGarage, canActivate: [RoleGuard], data: { expectedRoles: ['RESPONSABLE_GARAGE'] } },
       
       // Mecanicien
       { path: 'mecanicien/interventions', component: Interventions, canActivate: [RoleGuard], data: { expectedRoles: ['MECANICIEN'] } }
