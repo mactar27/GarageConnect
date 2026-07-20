@@ -36,7 +36,7 @@
           </div>
           <div class="border-t border-gray-200 pt-3 flex justify-between items-center">
             <span class="text-gray-800 font-medium">Total à payer</span>
-            <span class="text-2xl font-bold text-gray-900">{{ demandeDetails.devis[0].montantTotal }} FCFA</span>
+            <span class="text-2xl font-bold text-gray-900">{{ demandeDetails.devis.montantTotal | number }} FCFA</span>
           </div>
         </div>
       </div>
@@ -45,12 +45,28 @@
       <div class="space-y-4 mb-8">
         <h3 class="text-sm font-bold text-gray-900">Méthode de paiement</h3>
         
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm border-blue-500 bg-blue-50/50 ring-1 ring-blue-500">
             <input type="radio" name="payment_method" value="card" checked class="sr-only">
             <span class="flex flex-col text-center w-full">
               <svg class="mx-auto h-8 w-8 text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
               <span class="block text-sm font-bold text-blue-900">Carte Bancaire</span>
+            </span>
+          </label>
+          
+          <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm hover:border-blue-300">
+            <input type="radio" name="payment_method" value="wave" class="sr-only">
+            <span class="flex flex-col text-center w-full">
+              <div class="mx-auto h-8 w-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold mb-2">W</div>
+              <span class="block text-sm font-bold text-gray-700">Wave</span>
+            </span>
+          </label>
+
+          <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm hover:border-blue-300">
+            <input type="radio" name="payment_method" value="orange_money" class="sr-only">
+            <span class="flex flex-col text-center w-full">
+              <div class="mx-auto h-8 w-8 bg-orange-500 text-white rounded-lg flex items-center justify-center font-bold mb-2">OM</div>
+              <span class="block text-sm font-bold text-gray-700">Orange Money</span>
             </span>
           </label>
         </div>
@@ -61,7 +77,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        {{ processing ? 'Traitement en cours...' : 'Payer ' + demandeDetails.devis[0].montantTotal + ' FCFA' }}
+        {{ processing ? 'Traitement en cours...' : 'Payer ' + (demandeDetails.devis.montantTotal | number) + ' FCFA' }}
       </button>
 
       <p class="text-center text-xs text-gray-400 mt-4 flex items-center justify-center">
