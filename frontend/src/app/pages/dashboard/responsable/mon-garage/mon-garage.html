@@ -1,0 +1,104 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gray-50 border-b border-gray-200 px-8 py-6">
+      <h2 class="text-2xl font-bold text-gray-800">Mon Garage</h2>
+      <p class="text-sm text-gray-500 mt-1">Gérez le profil de votre établissement.</p>
+    </div>
+
+    <!-- Content -->
+    <div class="p-8">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+
+      <!-- Garage Exists -->
+      <div *ngIf="!loading && garage" class="space-y-6">
+        <div class="flex items-center space-x-4 mb-6">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">{{ garage.nom }}</h3>
+            <p class="text-gray-500">{{ garage.adresse }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+            <p class="text-sm text-gray-500 mb-1">Téléphone</p>
+            <p class="font-semibold text-gray-800">{{ garage.telephone }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+            <p class="text-sm text-gray-500 mb-1">Statut d'approbation</p>
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                 [ngClass]="garage.estValide ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'">
+              <span class="w-2 h-2 rounded-full mr-2" [ngClass]="garage.estValide ? 'bg-green-500' : 'bg-amber-500'"></span>
+              {{ garage.estValide ? 'Validé' : 'En attente de validation' }}
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!garage.estValide" class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-6">
+          <div class="flex">
+            <svg class="h-6 w-6 text-amber-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <p class="text-sm text-amber-700">
+              Votre garage est en cours d'examen par notre équipe. Vous ne pourrez recevoir de demandes de clients qu'une fois la validation effectuée par un administrateur.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Garage Form -->
+      <div *ngIf="!loading && !garage">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Enregistrez votre garage</h3>
+          <p class="text-gray-500 mt-2 max-w-md mx-auto">Pour commencer à recevoir des demandes de réparation, vous devez d'abord créer le profil de votre établissement.</p>
+        </div>
+
+        <form (ngSubmit)="creerGarage()" class="space-y-6 max-w-xl mx-auto">
+          <!-- Error Alert -->
+          <div *ngIf="error" class="bg-red-50 text-red-700 p-4 rounded-xl text-sm flex items-start">
+            <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>{{ error }}</span>
+          </div>
+
+          <!-- Success Alert -->
+          <div *ngIf="success" class="bg-green-50 text-green-700 p-4 rounded-xl text-sm flex items-start">
+            <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>{{ success }}</span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nom du garage</label>
+            <input type="text" [(ngModel)]="nom" name="nom" required
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   placeholder="Ex: Garage Auto Express">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse complète</label>
+            <input type="text" [(ngModel)]="adresse" name="adresse" required
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   placeholder="Ex: 123 Rue de la Mécanique, Dakar">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone de contact</label>
+            <input type="tel" [(ngModel)]="telephone" name="telephone" required
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   placeholder="Ex: +221 77 000 00 00">
+          </div>
+
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center">
+            Créer mon garage
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

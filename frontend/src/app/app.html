@@ -1,0 +1,7 @@
+<!-- Splash Screen -->
+<div *ngIf="showSplash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white text-gray-900 transition-opacity duration-1000 ease-in-out" [class.opacity-0]="fadeSplash">
+  <img src="/ChatGPT Image 20 juil. 2026, 13_28_37 2.png" alt="GarageConnect Splash" class="w-auto h-auto max-w-xs md:max-w-sm lg:max-w-md object-contain animate-splash-bounce" />
+</div>
+
+<!-- Main Router Content -->
+<router-outlet></router-outlet>

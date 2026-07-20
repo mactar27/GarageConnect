@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+  MECANICIEN
+  RESPONSABLE_GARAGE
+}
+
+enum StatutDemande {
+  EN_ATTENTE
+  ACCEPTEE
+  DEVIS_ENVOYE
+  DEVIS_VALIDE
+  PAYEE
+  EN_COURS
+  TERMINEE
+  ANNULEE
+}
+
+model Utilisateur {
+  id               Int      @id @default(autoincrement())
+  nom              String
+  prenom           String
+  email            String   @unique
+  motDePasse       String
+  telephone        String?
+  role             Role
+  photoProfil      String?
+  pointsReputation Int      @default(0) // Seulement pour Mecanicien
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  garageDirige     Garage?            @relation("GarageResponsable")
+  garageEmploi     Garage?            @relation("GarageMecaniciens", fields: [garageId], references: [id])
+  garageId         Int?
+
+  vehicules        Vehicule[]
+  demandesClient   DemandeReparation[] @relation("DemandesClient")
+  demandesMeca     DemandeReparation[] @relation("DemandesMecanicien")
+  avisRecus        Avis[]              @relation("AvisMecanicien")
+  avisLaisses      Avis[]              @relation("AvisClient")
+  notifications    Notification[]
+}
+
+model Garage {
+  id            Int      @id @default(autoincrement())
+  nom           String
+  adresse       String
+  telephone     String
+  estValide     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  responsableId Int      @unique
+  responsable   Utilisateur @relation("GarageResponsable", fields: [responsableId], references: [id])
+
+  mecaniciens   Utilisateur[] @relation("GarageMecaniciens")
+  demandes      DemandeReparation[]
+}
+
+model Vehicule {
+  id              Int      @id @default(autoincrement())
+  immatriculation String   @unique
+  marque          String
+  modele          String
+  annee           Int
+  clientId        Int
+  client          Utilisateur @relation(fields: [clientId], references: [id])
+
+  demandes        DemandeReparation[]
+}
+
+model DemandeReparation {
+  id                  Int           @id @default(autoincrement())
+  descriptionProbleme String
+  statut              StatutDemande @default(EN_ATTENTE)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  clientId            Int
+  client              Utilisateur   @relation("DemandesClient", fields: [clientId], references: [id])
+
+  vehiculeId          Int
+  vehicule            Vehicule      @relation(fields: [vehiculeId], references: [id])
+
+  garageId            Int?
+  garage              Garage?       @relation(fields: [garageId], references: [id])
+
+  mecanicienId        Int?
+  mecanicien          Utilisateur?  @relation("DemandesMecanicien", fields: [mecanicienId], references: [id])
+
+  devis               Devis?
+  facture             Facture?
+  rapport             Rapport?
+}
+
+model Devis {
+  id            Int      @id @default(autoincrement())
+  montantTotal  Float
+  estValide     Boolean  @default(false)
+  detailPieces  String
+  createdAt     DateTime @default(now())
+
+  demandeId     Int      @unique
+  demande       DemandeReparation @relation(fields: [demandeId], references: [id])
+}
+
+model Facture {
+  id              Int      @id @default(autoincrement())
+  montant         Float
+  methodePaiement String
+  createdAt       DateTime @default(now())
+
+  demandeId       Int      @unique
+  demande         DemandeReparation @relation(fields: [demandeId], references: [id])
+}
+
+model Rapport {
+  id            Int      @id @default(autoincrement())
+  contenu       String
+  createdAt     DateTime @default(now())
+
+  demandeId     Int      @unique
+  demande       DemandeReparation @relation(fields: [demandeId], references: [id])
+}
+
+model Avis {
+  id            Int      @id @default(autoincrement())
+  note          Int
+  commentaire   String?
+  createdAt     DateTime @default(now())
+
+  clientId      Int
+  client        Utilisateur @relation("AvisClient", fields: [clientId], references: [id])
+
+  mecanicienId  Int
+  mecanicien    Utilisateur @relation("AvisMecanicien", fields: [mecanicienId], references: [id])
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  message       String
+  estLue        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+}

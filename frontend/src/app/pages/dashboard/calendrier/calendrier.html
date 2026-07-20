@@ -1,0 +1,150 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  
+  <!-- Header -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center space-x-4">
+      <h2 class="text-2xl font-bold text-gray-900 tracking-tight w-48">{{ currentMonth }} {{ currentYear }}</h2>
+      <div class="flex bg-gray-100/80 p-1 rounded-xl">
+        <button (click)="prevMonth()" class="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-white rounded-lg transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+        <button (click)="goToToday()" class="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-all">Aujourd'hui</button>
+        <button (click)="nextMonth()" class="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-white rounded-lg transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+      </div>
+    </div>
+    
+    <button (click)="openModal()" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md shadow-blue-500/20 transition-all">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      Nouveau RDV
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Calendar Grid -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <!-- Days of Week -->
+      <div class="grid grid-cols-7 border-b border-gray-100 bg-gray-50/50">
+        <div *ngFor="let day of daysOfWeek" class="py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          {{ day }}
+        </div>
+      </div>
+      <!-- Days Grid -->
+      <div class="grid grid-cols-7 auto-rows-fr">
+        <div *ngFor="let day of calendarDays" 
+             class="min-h-[100px] sm:min-h-[120px] p-2 border-b border-r border-gray-100 transition-colors hover:bg-gray-50 group relative"
+             [ngClass]="{'bg-gray-50/30': !day.isCurrentMonth}">
+          
+          <span class="text-sm font-medium p-1.5 rounded-full w-7 h-7 flex items-center justify-center mb-1"
+                [ngClass]="{'text-gray-900': day.isCurrentMonth, 'text-gray-400': !day.isCurrentMonth, 'bg-blue-600 text-white shadow-md shadow-blue-500/30': day.isToday}">
+            {{ day.date }}
+          </span>
+
+          <!-- Appointment Pills -->
+          <div *ngIf="day.hasAppointment" class="space-y-1">
+            <div *ngFor="let app of day.hasAppointment" 
+                 class="text-xs px-2 py-1 rounded cursor-pointer truncate font-medium transition-all hover:scale-105"
+                 [ngClass]="{
+                   'bg-blue-50 text-blue-700 border border-blue-200': app.type === 'DEPOT',
+                   'bg-green-50 text-green-700 border border-green-200': app.type === 'RECUPERATION',
+                   'bg-purple-50 text-purple-700 border border-purple-200': app.type === 'REVISION'
+                 }">
+              {{ app.time }} - {{ app.title }}
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Appointments Side Panel -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-900 px-1">Prochains rendez-vous</h3>
+      
+      <div *ngFor="let app of mockAppointments" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute left-0 top-0 bottom-0 w-1.5"
+             [ngClass]="{
+               'bg-blue-500': app.type === 'DEPOT',
+               'bg-green-500': app.type === 'RECUPERATION',
+               'bg-purple-500': app.type === 'REVISION'
+             }"></div>
+        
+        <div class="pl-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-bold text-gray-900">{{ app.day }} {{ currentMonth }}</span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{{ app.time }}</span>
+          </div>
+          <h4 class="font-bold text-gray-900 mb-1">{{ app.title }}</h4>
+          <p class="text-sm text-gray-500 flex items-center">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            {{ app.garage }}
+          </p>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl border border-blue-100 p-6 text-center mt-6">
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-blue-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h4 class="text-sm font-bold text-blue-900 mb-1">Besoin d'aide ?</h4>
+        <p class="text-xs text-blue-700/80 mb-3">Notre support est disponible pour modifier vos rendez-vous.</p>
+        <button class="text-sm font-bold text-blue-600 hover:text-blue-800">Contacter le support &rarr;</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Overlay (Glassmorphism) -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm transition-opacity">
+  
+  <!-- Modal Content -->
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-splash-fade-in border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+      <h3 class="text-xl font-bold text-gray-900">Planifier un rendez-vous</h3>
+      <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Motif du rendez-vous</label>
+        <input type="text" [(ngModel)]="newAppt.title" placeholder="Ex: Révision des 50 000 km" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm bg-gray-50 focus:bg-white">
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Jour ({{ currentMonth }})</label>
+          <input type="number" [(ngModel)]="newAppt.day" min="1" max="31" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm bg-gray-50 focus:bg-white">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Heure</label>
+          <input type="time" [(ngModel)]="newAppt.time" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm bg-gray-50 focus:bg-white">
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Type d'intervention</label>
+        <select [(ngModel)]="newAppt.type" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm bg-gray-50 focus:bg-white">
+          <option value="DEPOT">Dépôt véhicule (Bleu)</option>
+          <option value="REVISION">Révision (Violet)</option>
+          <option value="RECUPERATION">Récupération (Vert)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Garage</label>
+        <select [(ngModel)]="newAppt.garage" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm bg-gray-50 focus:bg-white">
+          <option value="Garage Mermoz Auto">Garage Mermoz Auto</option>
+          <option value="Sénégal Mécanique">Sénégal Mécanique</option>
+          <option value="Auto Expert Dakar">Auto Expert Dakar</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+      <button (click)="closeModal()" class="px-5 py-2.5 rounded-xl font-bold text-gray-600 hover:text-gray-900 transition-colors">Annuler</button>
+      <button (click)="saveAppointment()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md shadow-blue-500/20 transition-all">
+        Confirmer le RDV
+      </button>
+    </div>
+  </div>
+</div>
