@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../services/api.service';
@@ -19,7 +19,7 @@ export class Mecaniciens implements OnInit {
   addError = '';
   addSuccess = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadData();
@@ -34,9 +34,11 @@ export class Mecaniciens implements OnInit {
           this.mecaniciens = data.mecaniciens;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -53,11 +55,12 @@ export class Mecaniciens implements OnInit {
       next: (res: any) => {
         this.addSuccess = 'Mécanicien ajouté avec succès.';
         this.newMec = { nom: '', prenom: '', email: '', telephone: '', motDePasse: '' };
-        this.loadData(); // Recharger la liste
-        setTimeout(() => this.showAddModal = false, 1500);
+        this.loadData();
+        setTimeout(() => { this.showAddModal = false; this.cdr.detectChanges(); }, 1500);
       },
       error: (err: any) => {
         this.addError = err.error?.message || 'Erreur lors de l\'ajout';
+        this.cdr.detectChanges();
       }
     });
   }

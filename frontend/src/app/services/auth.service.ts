@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:3000/api/auth';
+  private baseUrl = 'http://localhost:3001/api/auth';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -16,7 +16,7 @@ export class AuthService {
       tap((res: any) => {
         if (res && res.token) {
           localStorage.setItem('token', res.token);
-          localStorage.setItem('role', res.role);
+          localStorage.setItem('role', res.user.role);
           localStorage.setItem('user_id', res.user.id);
         }
       })

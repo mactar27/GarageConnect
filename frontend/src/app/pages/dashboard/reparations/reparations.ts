@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
@@ -20,7 +20,7 @@ export class Reparations implements OnInit {
   avis = { note: 5, commentaire: '' };
   avisSuccess = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadDemandes();
@@ -32,8 +32,9 @@ export class Reparations implements OnInit {
       next: (data: any) => {
         this.demandes = data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
 

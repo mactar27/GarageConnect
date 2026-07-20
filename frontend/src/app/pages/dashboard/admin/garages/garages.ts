@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../../services/api.service';
 
@@ -13,7 +13,7 @@ export class Garages implements OnInit {
   loading = true;
   actionMessage = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadGarages();
@@ -25,9 +25,11 @@ export class Garages implements OnInit {
       next: (data: any) => {
         this.garages = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -36,8 +38,9 @@ export class Garages implements OnInit {
     this.apiService.put(`/admin/garages/${id}/valider`, {}).subscribe({
       next: () => {
         this.actionMessage = 'Garage validé avec succès.';
+        this.cdr.detectChanges();
         this.loadGarages();
-        setTimeout(() => this.actionMessage = '', 3000);
+        setTimeout(() => { this.actionMessage = ''; this.cdr.detectChanges(); }, 3000);
       }
     });
   }
@@ -46,8 +49,9 @@ export class Garages implements OnInit {
     this.apiService.put(`/admin/garages/${id}/suspendre`, {}).subscribe({
       next: () => {
         this.actionMessage = 'Garage suspendu.';
+        this.cdr.detectChanges();
         this.loadGarages();
-        setTimeout(() => this.actionMessage = '', 3000);
+        setTimeout(() => { this.actionMessage = ''; this.cdr.detectChanges(); }, 3000);
       }
     });
   }

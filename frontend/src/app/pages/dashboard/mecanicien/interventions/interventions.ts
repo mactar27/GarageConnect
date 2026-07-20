@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-interventions',
@@ -25,7 +25,7 @@ export class Interventions implements OnInit {
   rapport = { contenu: '' };
   rapportSuccess = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadDemandes();
@@ -37,16 +37,18 @@ export class Interventions implements OnInit {
       next: (data: any) => {
         this.demandes = data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
   changerStatut(id: number, statut: string) {
     this.apiService.put(`/mecanicien/demandes/${id}/statut`, { statut }).subscribe({
-      next: () => {
-        this.loadDemandes();
-      }
+      next: () => this.loadDemandes()
     });
   }
 
@@ -69,9 +71,7 @@ export class Interventions implements OnInit {
       next: () => {
         this.devisSuccess = 'Devis envoyé avec succès !';
         this.loadDemandes();
-        setTimeout(() => {
-          this.showDevisModal = false;
-        }, 1500);
+        setTimeout(() => { this.showDevisModal = false; this.cdr.detectChanges(); }, 1500);
       }
     });
   }
@@ -94,9 +94,7 @@ export class Interventions implements OnInit {
       next: () => {
         this.rapportSuccess = 'Rapport enregistré et réparation terminée !';
         this.loadDemandes();
-        setTimeout(() => {
-          this.showRapportModal = false;
-        }, 1500);
+        setTimeout(() => { this.showRapportModal = false; this.cdr.detectChanges(); }, 1500);
       }
     });
   }

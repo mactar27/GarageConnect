@@ -85,7 +85,7 @@ export const assignerMecanicien = async (req: AuthRequest, res: Response) => {
     const { mecanicienId } = req.body;
     
     const demande = await prisma.demandeReparation.update({
-      where: { id: parseInt(demandeId) },
+      where: { id: parseInt(demandeId as string) },
       data: { mecanicienId, statut: 'ACCEPTEE' }
     });
     res.json(demande);

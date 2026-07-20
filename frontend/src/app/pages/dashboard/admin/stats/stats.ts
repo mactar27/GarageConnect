@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../../services/api.service';
 
@@ -12,7 +12,7 @@ export class Stats implements OnInit {
   stats: any = { totalUtilisateurs: 0, totalGarages: 0, totalDemandes: 0 };
   loading = true;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loading = true;
@@ -20,9 +20,11 @@ export class Stats implements OnInit {
       next: (data: any) => {
         this.stats = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

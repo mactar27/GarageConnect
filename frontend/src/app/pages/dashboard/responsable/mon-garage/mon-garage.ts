@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../services/api.service';
@@ -19,7 +19,7 @@ export class MonGarage implements OnInit {
   adresse = '';
   telephone = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadGarage();
@@ -29,12 +29,15 @@ export class MonGarage implements OnInit {
     this.loading = true;
     this.apiService.get('/responsable/mon-garage').subscribe({
       next: (data: any) => {
-        this.garage = data;
+        this.garage = (data === null || data === undefined) ? null : data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err: any) => {
+        console.error('Erreur chargement garage:', err);
+        this.garage = null;
         this.loading = false;
-        // Garage non trouvé (pas encore créé) renverra null ou une erreur 404
+        this.cdr.detectChanges();
       }
     });
   }
@@ -55,6 +58,7 @@ export class MonGarage implements OnInit {
       next: (res: any) => {
         this.success = 'Garage créé avec succès ! Il est en attente de validation par un administrateur.';
         this.garage = res;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.error = err.error?.message || 'Erreur lors de la création du garage';
