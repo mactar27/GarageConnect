@@ -29,8 +29,10 @@
           </div>
 
           <div *ngIf="!loadingVehicules && vehicules.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label *ngFor="let v of vehicules" class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none" [ngClass]="{'border-blue-500 bg-blue-50/50 ring-1 ring-blue-500': demande.vehiculeId === v.id.toString(), 'border-gray-300': demande.vehiculeId !== v.id.toString()}">
-              <input type="radio" name="vehicule" [value]="v.id.toString()" [(ngModel)]="demande.vehiculeId" class="sr-only">
+            <div *ngFor="let v of vehicules"
+              (click)="demande.vehiculeId = v.id.toString()"
+              class="relative flex cursor-pointer rounded-xl border p-4 shadow-sm transition-all duration-150"
+              [ngClass]="demande.vehiculeId === v.id.toString() ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-500' : 'border-gray-300 bg-white hover:border-blue-300'">
               <span class="flex flex-1">
                 <span class="flex flex-col">
                   <span class="block text-sm font-bold text-gray-900">{{ v.marque }} {{ v.modele }} ({{ v.annee }})</span>
@@ -40,7 +42,7 @@
               <svg *ngIf="demande.vehiculeId === v.id.toString()" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
               </svg>
-            </label>
+            </div>
           </div>
         </div>
 
