@@ -36,13 +36,13 @@ export class Paiements implements OnInit {
 
   loadDemandeDetails() {
     this.apiService.get('/client/demandes').subscribe({
-      next: (demandes: any[]) => {
-        this.demandeDetails = demandes.find(d => d.id === this.demandeId);
+      next: (demandes: any) => {
+        this.demandeDetails = demandes.find((d: any) => d.id === this.demandeId);
         this.loading = false;
         
         // Rediriger si la demande n'est pas au statut DEVIS_VALIDE ou si elle est introuvable
         if (!this.demandeDetails || this.demandeDetails.statut !== 'DEVIS_VALIDE') {
-          this.router.navigate(['/dashboard/client/reparations']);
+          this.router.navigate(['/dashboard/reparations']);
         }
       },
       error: () => this.loading = false
@@ -62,7 +62,7 @@ export class Paiements implements OnInit {
           this.processing = false;
           this.success = true;
           setTimeout(() => {
-            this.router.navigate(['/dashboard/client/reparations']);
+            this.router.navigate(['/dashboard/reparations']);
           }, 3000);
         },
         error: () => this.processing = false

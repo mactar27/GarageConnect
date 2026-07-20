@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-stats',
@@ -17,7 +17,7 @@ export class Stats implements OnInit {
   ngOnInit() {
     this.loading = true;
     this.apiService.get('/admin/statistiques').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.stats = data;
         this.loading = false;
       },

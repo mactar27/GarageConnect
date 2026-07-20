@@ -1,1 +1,142 @@
-<p>interventions works!</p>
+<div class="max-w-7xl mx-auto space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">Mes Interventions</h2>
+      <p class="text-sm text-gray-500 mt-1">Gérez les demandes de réparation qui vous ont été assignées, envoyez des devis et mettez à jour le statut.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center py-12">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+  </div>
+
+  <div *ngIf="!loading && demandes.length === 0" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden p-12 text-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 mb-2">Aucune intervention</h3>
+    <p class="text-gray-500 mb-6">Le responsable ne vous a pas encore assigné de véhicule.</p>
+  </div>
+
+  <div *ngIf="!loading && demandes.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div *ngFor="let demande of demandes" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
+      
+      <!-- Header de la carte -->
+      <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+            {{ demande.vehicule.marque.charAt(0) }}{{ demande.vehicule.modele.charAt(0) }}
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900">{{ demande.vehicule.marque }} {{ demande.vehicule.modele }}</h3>
+            <p class="text-xs text-gray-500">{{ demande.vehicule.immatriculation }}</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border" [ngClass]="getStatutBadgeClass(demande.statut)">
+          {{ getStatutLabel(demande.statut) }}
+        </span>
+      </div>
+
+      <!-- Corps de la carte -->
+      <div class="p-5 flex-grow space-y-4">
+        
+        <div>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Problème signalé</span>
+          <p class="text-sm text-gray-800 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">{{ demande.descriptionProbleme }}</p>
+        </div>
+
+        <div class="flex items-center text-xs text-gray-500">
+          <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Client : <span class="font-medium text-gray-700 ml-1">{{ demande.client.prenom }} {{ demande.client.nom }}</span>
+        </div>
+      </div>
+
+      <!-- Actions de la carte -->
+      <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 mt-auto">
+        
+        <!-- Action 1: Etablir un devis -->
+        <button *ngIf="demande.statut === 'EN_ATTENTE' || demande.statut === 'ACCEPTEE'" (click)="ouvrirDevisModal(demande)" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors shadow-sm">
+          Établir un devis
+        </button>
+
+        <!-- Etat: Devis envoyé / En attente de paiement -->
+        <div *ngIf="demande.statut === 'DEVIS_ENVOYE' || demande.statut === 'DEVIS_VALIDE'" class="text-center py-2">
+          <p class="text-xs font-semibold text-gray-500">En attente de l'action du client (Validation/Paiement)</p>
+        </div>
+
+        <!-- Action 2: Démarrer la réparation -->
+        <button *ngIf="demande.statut === 'PAYEE'" (click)="changerStatut(demande.id, 'EN_COURS')" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors shadow-sm">
+          Commencer la réparation
+        </button>
+
+        <!-- Action 3: Terminer avec rapport -->
+        <button *ngIf="demande.statut === 'EN_COURS'" (click)="ouvrirRapportModal(demande)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors shadow-sm">
+          Terminer et faire le rapport
+        </button>
+
+        <!-- Etat: Terminée -->
+        <div *ngIf="demande.statut === 'TERMINEE'" class="text-center py-2">
+          <p class="text-xs font-bold text-emerald-600">Réparation achevée ✔</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Devis -->
+<div *ngIf="showDevisModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+      <h3 class="text-lg font-bold text-gray-900">Établir un devis</h3>
+      <button (click)="showDevisModal = false" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <div *ngIf="devisSuccess" class="bg-green-50 text-green-700 p-4 rounded-xl text-center mb-4">
+        {{ devisSuccess }}
+      </div>
+      <form *ngIf="!devisSuccess" (ngSubmit)="soumettreDevis()" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Montant Total (FCFA)</label>
+          <input type="number" [(ngModel)]="devis.montantTotal" name="montant" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Détails des pièces et main d'œuvre</label>
+          <textarea [(ngModel)]="devis.detailPieces" name="details" rows="4" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="Ex: Plaquettes de frein: 15000, Main d'œuvre: 10000..."></textarea>
+        </div>
+        <button type="submit" [disabled]="!devis.montantTotal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md disabled:opacity-50">
+          Envoyer le devis au client
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Rapport / Terminer -->
+<div *ngIf="showRapportModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-emerald-50">
+      <h3 class="text-lg font-bold text-emerald-900">Terminer la réparation</h3>
+      <button (click)="showRapportModal = false" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <div *ngIf="rapportSuccess" class="bg-green-50 text-green-700 p-4 rounded-xl text-center mb-4">
+        {{ rapportSuccess }}
+      </div>
+      <form *ngIf="!rapportSuccess" (ngSubmit)="soumettreRapport()" class="space-y-5">
+        <p class="text-sm text-gray-600">La réparation est achevée ? Veuillez rédiger un bref compte rendu pour le client.</p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Rapport d'intervention</label>
+          <textarea [(ngModel)]="rapport.contenu" name="contenu" rows="5" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Expliquez ce qui a été fait sur le véhicule..."></textarea>
+        </div>
+        <button type="submit" [disabled]="!rapport.contenu" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md disabled:opacity-50">
+          Clôturer la demande
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

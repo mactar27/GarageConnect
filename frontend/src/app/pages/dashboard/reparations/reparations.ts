@@ -29,7 +29,7 @@ export class Reparations implements OnInit {
   loadDemandes() {
     this.loading = true;
     this.apiService.get('/client/demandes').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.demandes = data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
       },
@@ -46,7 +46,7 @@ export class Reparations implements OnInit {
   }
 
   allerAuPaiement(demandeId: number) {
-    this.router.navigate(['/dashboard/client/paiements'], { queryParams: { demandeId } });
+    this.router.navigate(['/dashboard/paiements'], { queryParams: { demandeId } });
   }
 
   ouvrirAvisModal(demande: any) {

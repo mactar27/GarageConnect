@@ -35,7 +35,7 @@ export class NouvelleDemande implements OnInit {
   loadVehicules() {
     this.loadingVehicules = true;
     this.apiService.get('/client/vehicules').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.vehicules = data;
         this.loadingVehicules = false;
       },
@@ -46,7 +46,7 @@ export class NouvelleDemande implements OnInit {
   loadGarages() {
     this.loadingGarages = true;
     this.apiService.get('/client/garages').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.garages = data;
         this.loadingGarages = false;
       },
@@ -61,7 +61,7 @@ export class NouvelleDemande implements OnInit {
         this.newVehicule = { marque: '', modele: '', annee: null, immatriculation: '' };
         this.loadVehicules();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = "Erreur lors de l'ajout du véhicule.";
       }
     });
@@ -83,10 +83,10 @@ export class NouvelleDemande implements OnInit {
       next: () => {
         this.success = 'Demande de réparation envoyée avec succès !';
         setTimeout(() => {
-          this.router.navigate(['/dashboard/client/reparations']);
+          this.router.navigate(['/dashboard/reparations']);
         }, 2000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = "Erreur lors de l'envoi de la demande.";
       }
     });

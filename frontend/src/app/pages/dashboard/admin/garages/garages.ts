@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-garages',
@@ -22,7 +22,7 @@ export class Garages implements OnInit {
   loadGarages() {
     this.loading = true;
     this.apiService.get('/admin/garages').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.garages = data;
         this.loading = false;
       },

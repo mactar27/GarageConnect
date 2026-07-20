@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-mon-garage',
@@ -28,7 +28,7 @@ export class MonGarage implements OnInit {
   loadGarage() {
     this.loading = true;
     this.apiService.get('/responsable/mon-garage').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.garage = data;
         this.loading = false;
       },
@@ -52,11 +52,11 @@ export class MonGarage implements OnInit {
       adresse: this.adresse,
       telephone: this.telephone
     }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.success = 'Garage créé avec succès ! Il est en attente de validation par un administrateur.';
         this.garage = res;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err.error?.message || 'Erreur lors de la création du garage';
       }
     });

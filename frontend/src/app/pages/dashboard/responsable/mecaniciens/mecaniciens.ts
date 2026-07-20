@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-mecaniciens',
@@ -28,7 +28,7 @@ export class Mecaniciens implements OnInit {
   loadData() {
     this.loading = true;
     this.apiService.get('/responsable/mon-garage').subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.garage = data;
         if (data && data.mecaniciens) {
           this.mecaniciens = data.mecaniciens;
@@ -50,13 +50,13 @@ export class Mecaniciens implements OnInit {
     }
 
     this.apiService.post('/responsable/mecaniciens', this.newMec).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.addSuccess = 'Mécanicien ajouté avec succès.';
         this.newMec = { nom: '', prenom: '', email: '', telephone: '', motDePasse: '' };
         this.loadData(); // Recharger la liste
         setTimeout(() => this.showAddModal = false, 1500);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.addError = err.error?.message || 'Erreur lors de l\'ajout';
       }
     });

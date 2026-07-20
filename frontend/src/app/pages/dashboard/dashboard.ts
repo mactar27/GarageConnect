@@ -41,8 +41,8 @@ export class Dashboard implements OnInit {
       this.http.get<any>('http://localhost:3001/api/auth/me', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       }).subscribe({
-        next: (res) => this.user = res.user,
-        error: (err) => console.error(err)
+        next: (res: any) => this.user = res.user,
+        error: (err: any) => console.error(err)
       });
 
       // Load notifications
@@ -81,11 +81,11 @@ export class Dashboard implements OnInit {
       this.http.post<any>('http://localhost:3001/api/auth/avatar', formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       }).subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.user = res.user;
           this.isProfileOpen = false;
         },
-        error: (err) => console.error(err)
+        error: (err: any) => console.error(err)
       });
     }
   }
