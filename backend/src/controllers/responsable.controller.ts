@@ -63,3 +63,33 @@ export const ajouterMecanicien = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Erreur ajout mécanicien' });
   }
 };
+
+export const getDemandesGarage = async (req: AuthRequest, res: Response) => {
+  try {
+    const garage = await prisma.garage.findUnique({ where: { responsableId: req.user!.id } });
+    if (!garage) return res.status(404).json({ message: 'Garage non trouvé' });
+
+    const demandes = await prisma.demandeReparation.findMany({
+      where: { garageId: garage.id },
+      include: { vehicule: true, client: { select: { nom: true, prenom: true } }, mecanicien: { select: { id: true, nom: true, prenom: true } } }
+    });
+    res.json(demandes);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur récupération des demandes' });
+  }
+};
+
+export const assignerMecanicien = async (req: AuthRequest, res: Response) => {
+  try {
+    const { demandeId } = req.params;
+    const { mecanicienId } = req.body;
+    
+    const demande = await prisma.demandeReparation.update({
+      where: { id: parseInt(demandeId) },
+      data: { mecanicienId, statut: 'ACCEPTEE' }
+    });
+    res.json(demande);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur assignation mécanicien' });
+  }
+};
