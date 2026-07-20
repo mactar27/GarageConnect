@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,7 +20,8 @@ export class Paiements implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -30,6 +31,7 @@ export class Paiements implements OnInit {
         this.loadDemandeDetails();
       } else {
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -39,33 +41,34 @@ export class Paiements implements OnInit {
       next: (demandes: any) => {
         this.demandeDetails = demandes.find((d: any) => d.id === this.demandeId);
         this.loading = false;
+        this.cdr.detectChanges();
         
-        // Rediriger si la demande n'est pas au statut DEVIS_VALIDE ou si elle est introuvable
         if (!this.demandeDetails || this.demandeDetails.statut !== 'DEVIS_VALIDE') {
           this.router.navigate(['/dashboard/reparations']);
         }
       },
-      error: () => this.loading = false
+      error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
   simulerPaiement() {
     if (!this.demandeId) return;
     this.processing = true;
+    this.cdr.detectChanges();
     
-    // On simule un délai de traitement de paiement (ex: appel Stripe/Wave)
     setTimeout(() => {
       this.apiService.post(`/client/demandes/${this.demandeId}/payer`, {
-        montant: this.demandeDetails.devis[0].montantTotal
+        montant: this.demandeDetails?.devis?.montantTotal || 0
       }).subscribe({
         next: () => {
           this.processing = false;
           this.success = true;
+          this.cdr.detectChanges();
           setTimeout(() => {
             this.router.navigate(['/dashboard/reparations']);
           }, 3000);
         },
-        error: () => this.processing = false
+        error: () => { this.processing = false; this.cdr.detectChanges(); }
       });
     }, 1500);
   }

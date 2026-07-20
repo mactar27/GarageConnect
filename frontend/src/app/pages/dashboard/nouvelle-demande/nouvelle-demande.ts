@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -25,7 +25,7 @@ export class NouvelleDemande implements OnInit {
   error = '';
   success = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadVehicules();
@@ -38,8 +38,9 @@ export class NouvelleDemande implements OnInit {
       next: (data: any) => {
         this.vehicules = data;
         this.loadingVehicules = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loadingVehicules = false
+      error: () => { this.loadingVehicules = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -49,20 +50,29 @@ export class NouvelleDemande implements OnInit {
       next: (data: any) => {
         this.garages = data;
         this.loadingGarages = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loadingGarages = false
+      error: () => { this.loadingGarages = false; this.cdr.detectChanges(); }
     });
   }
 
   ajouterVehicule() {
+    this.error = '';
     this.apiService.post('/client/vehicules', this.newVehicule).subscribe({
       next: () => {
         this.showAddVehiculeModal = false;
         this.newVehicule = { marque: '', modele: '', annee: null, immatriculation: '' };
         this.loadVehicules();
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
-        this.error = "Erreur lors de l'ajout du véhicule.";
+        // Si l'immatriculation existe déjà, on indique un message plus clair
+        if (err.status === 500) {
+          this.error = "Ce véhicule (ou cette immatriculation) est déjà enregistré.";
+        } else {
+          this.error = "Erreur lors de l'ajout du véhicule.";
+        }
+        this.cdr.detectChanges();
       }
     });
   }
@@ -82,12 +92,14 @@ export class NouvelleDemande implements OnInit {
     }).subscribe({
       next: () => {
         this.success = 'Demande de réparation envoyée avec succès !';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.router.navigate(['/dashboard/reparations']);
         }, 2000);
       },
       error: (err: any) => {
         this.error = "Erreur lors de l'envoi de la demande.";
+        this.cdr.detectChanges();
       }
     });
   }
